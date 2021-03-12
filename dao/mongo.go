@@ -75,3 +75,27 @@ func (m *MongoService) CreateInsolvencyResource(dao *models.InsolvencyResourceDa
 
 	return nil
 }
+
+// CreatePractitionerResource will update the insolvency resource with the
+// practitioner data and store it in the database
+func (m *MongoService) CreatePractitionerResource(dao *models.PractitionerResourceDao, transactionID string) error {
+	collection := m.db.Collection(m.CollectionName)
+	id, _ := primitive.ObjectIDFromHex(transactionID)
+
+	var result models.InsolvencyResourceDao
+	err := collection.FindOne(context.Background(), id).Decode(&result)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	result.Data.Practitioner = *dao
+
+	_, err = collection.UpdateOne(context.Background(), id, result)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+
+	return nil
+}

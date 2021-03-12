@@ -9,6 +9,10 @@ import (
 type Service interface {
 	// CreateInsolvencyResource will persist a newly created resource
 	CreateInsolvencyResource(dao *models.InsolvencyResourceDao) error
+
+	// CreatePractitionerResource will update an existing resource and
+	// and persist it with practitioner data
+	CreatePractitionerResource(dao *models.PractitionerResourceDao, transactionID string) error
 }
 
 // NewDAOService will create a new instance of the Service interface. All details about its implementation and the
