@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"gopkg.in/mgo.v2/bson"
 )
 
 var client *mongo.Client
@@ -80,18 +81,19 @@ func (m *MongoService) CreateInsolvencyResource(dao *models.InsolvencyResourceDa
 // practitioner data and store it in the database
 func (m *MongoService) CreatePractitionerResource(dao *models.PractitionerResourceDao, transactionID string) error {
 	collection := m.db.Collection(m.CollectionName)
-	id, _ := primitive.ObjectIDFromHex(transactionID)
 
-	var result models.InsolvencyResourceDao
-	err := collection.FindOne(context.Background(), id).Decode(&result)
-	if err != nil {
-		log.Error(err)
-		return err
+	update := bson.D{
+		{
+			"$set", bson.D{
+				{"data.practitioner.first_name", dao.FirstName},
+				{"data.practitioner.last_name", dao.LastName},
+				{"data.practitioner.address", dao.Address},
+				{"data.practitioner.role", dao.Role},
+			},
+		},
 	}
 
-	result.Data.Practitioner = *dao
-
-	_, err = collection.UpdateOne(context.Background(), id, result)
+	_, err := collection.UpdateOne(context.Background(), bson.M{"_id": transactionID}, update)
 	if err != nil {
 		log.Error(err)
 		return err
