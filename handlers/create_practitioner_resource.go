@@ -41,7 +41,7 @@ func HandleCreatePractitionerResource(svc dao.Service) http.Handler {
 		// Check if practitioner role supplied is valid
 		if ok := constants.IsInRoleList(request.Role); !ok {
 			log.ErrorR(req, fmt.Errorf("invalid practitioner role"))
-			m := models.NewMessageResponse(fmt.Sprintf("the practitioner supplied is not valid %s", request.Role))
+			m := models.NewMessageResponse(fmt.Sprintf("the practitioner role supplied is not valid %s", request.Role))
 			utils.WriteJSONWithStatus(w, req, m, http.StatusBadRequest)
 			return
 		}
@@ -57,6 +57,6 @@ func HandleCreatePractitionerResource(svc dao.Service) http.Handler {
 			return
 		}
 
-		utils.WriteJSONWithStatus(w, req, transformers.PractitionerResourceDaoToCreatedResponse(model), http.StatusOK)
+		utils.WriteJSONWithStatus(w, req, transformers.PractitionerResourceDaoToCreatedResponse(model), http.StatusCreated)
 	})
 }

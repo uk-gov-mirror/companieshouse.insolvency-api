@@ -82,18 +82,26 @@ func (m *MongoService) CreateInsolvencyResource(dao *models.InsolvencyResourceDa
 func (m *MongoService) CreatePractitionerResource(dao *models.PractitionerResourceDao, transactionID string) error {
 	collection := m.db.Collection(m.CollectionName)
 
-	update := bson.D{
-		{
-			"$set", bson.D{
-				{"data.practitioner.first_name", dao.FirstName},
-				{"data.practitioner.last_name", dao.LastName},
-				{"data.practitioner.address", dao.Address},
-				{"data.practitioner.role", dao.Role},
-			},
-		},
+	id, err := primitive.ObjectIDFromHex(transactionID)
+	if err != nil {
+		log.Error(err)
+		return err
 	}
 
-	_, err := collection.UpdateOne(context.Background(), bson.M{"_id": transactionID}, update)
+	update := bson.M{
+		"$set": dao,
+	}
+
+	// update := bson.M{
+	// 	"$set": bson.M{
+	// 		"data.practitioner.first_name": dao.FirstName,
+	// 		"data.practitioner.last_name":  dao.LastName,
+	// 		"data.practitioner.address":    dao.Address,
+	// 		"data.practitioner.role":       dao.Role,
+	// 	},
+	// }
+
+	_, err = collection.UpdateOne(context.Background(), bson.M{"_id": id}, update)
 	if err != nil {
 		log.Error(err)
 		return err
